@@ -37,6 +37,30 @@ class Admin::ContentController < Admin::BaseController
     new_or_edit
   end
 
+  def merge
+    first_article = Article.find(params[:id])
+    second_article = Article.find(params[:merge_with])
+
+    if current_user.admin?
+      if !second_article || first_article == second_article
+        flash[:error] = "Illegal Action"
+        redirect_to :action => 'index' and return
+      end
+
+      merge_content = first_article.body + second_article.body
+      first_article.update_attributes :body => merge_content
+      old_comments = Feedback.find_all_by_article_id(second_article.id)
+      old_comments.each do |comment|
+        comment.article_id = first_article.id
+        comment.save
+      end
+      second_article.destroy
+      redirect_to :action => 'index'
+    else
+      flash[:error] = "You need to log in as admin"
+    end
+  end
+
   def destroy
     @record = Article.find(params[:id])
 

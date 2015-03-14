@@ -18,6 +18,11 @@ module NavigationHelpers
     when /^the new article page$/
       '/admin/content/new'
 
+    #when /^the edit page for "(.*)"$/ then admin_content_path("edit", Article.where(title: $1).first.id)
+  when /^the edit page for "(.*)"$/ then "/admin/content/edit/#{Article.where(title: $1).first.id}"
+
+    when /^the login page$/ then '/accounts/login'
+
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:
     #

@@ -31,6 +31,28 @@ module WithinHelpers
 end
 World(WithinHelpers)
 
+Given /^the following articles exist$/ do |articles_table|
+  articles_table.hashes.each do |article|
+    step "I am on the new article page"
+    step "I fill in \"article_title\" with \"#{article['title']}\""
+    step "I fill in \"article__body_and_extended_editor\" with \"#{article['body']}\""
+    step "I press \"Publish\""
+    step "I go to the home page"
+    step "I follow \"#{article['title']}\""
+    step "I fill in \"comment_author\" with \"#{article['comment_user']}\""
+    step "I fill in \"comment_body\" with \"#{article['comment']}\""
+    step "I press \"comment\""
+  end
+end
+
+When /^I fill in "merge_with" with the id of "(.*)"$/ do |title_name|
+  step "I fill in \"merge_with\" with \"#{Article.where(title: title_name).first.id}\""
+end
+
+Then /^the author of "(.*)" should be "(.*)"$/ do |article_name, user_name| 
+  assert Article.where(title: article_name).first.user.name == user_name , "incorrect author"
+end
+
 Given /^the blog is set up$/ do
   Blog.default.update_attributes!({:blog_name => 'Teh Blag',
                                    :base_url => 'http://localhost:3000'});
@@ -53,6 +75,10 @@ And /^I am logged into the admin panel$/ do
   else
     assert page.has_content?('Login successful')
   end
+end
+
+And /^I am not logged into the admin panel$/ do
+  visit '/accounts/logout'
 end
 
 # Single-line step scoper
